@@ -45,7 +45,7 @@ RUN echo "@community http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /et
 
 RUN curl -sS https://getcomposer.org/installer | \
     php -- --install-dir=/usr/bin --filename=composer
-    
+
 # configure timezone, mysql, apache
 RUN cp /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && \
     echo "${TIMEZONE}" > /etc/timezone && \
@@ -60,6 +60,7 @@ RUN cp /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && \
     sed -i 's#ServerName www.example.com:80#\nServerName localhost:80#' /etc/apache2/httpd.conf && \
     sed -i 's#^DocumentRoot ".*#DocumentRoot "/www"#g' /etc/apache2/httpd.conf && \
     sed -i 's#/var/www/localhost/htdocs#/www#g' /etc/apache2/httpd.conf && \
+    sed -i '/rewrite_module/s/^#//g' /etc/apache2/httpd.conf && \
     sed -i "s|;*date.timezone =.*|date.timezone = ${TIMEZONE}|i" /etc/php5/php.ini && \
     sed -i "s|;*memory_limit =.*|memory_limit = ${PHP_MEMORY_LIMIT}|i" /etc/php5/php.ini && \
     sed -i "s|;*upload_max_filesize =.*|upload_max_filesize = ${MAX_UPLOAD}|i" /etc/php5/php.ini && \
@@ -73,11 +74,11 @@ RUN cp /usr/share/zoneinfo/${TIMEZONE} /etc/localtime && \
     chown -R apache:apache /www
 
 # Configure xdebug
-RUN echo "zend_extension=xdebug.so" > /etc/php5/conf.d/xdebug.ini && \ 
-    echo -e "\n[XDEBUG]"  >> /etc/php5/conf.d/xdebug.ini && \ 
-    echo "xdebug.remote_enable=1" >> /etc/php5/conf.d/xdebug.ini && \  
-    echo "xdebug.remote_connect_back=1" >> /etc/php5/conf.d/xdebug.ini && \ 
-    echo "xdebug.idekey=PHPSTORM" >> /etc/php5/conf.d/xdebug.ini && \ 
+RUN echo "zend_extension=xdebug.so" > /etc/php5/conf.d/xdebug.ini && \
+    echo -e "\n[XDEBUG]"  >> /etc/php5/conf.d/xdebug.ini && \
+    echo "xdebug.remote_enable=1" >> /etc/php5/conf.d/xdebug.ini && \
+    echo "xdebug.remote_connect_back=1" >> /etc/php5/conf.d/xdebug.ini && \
+    echo "xdebug.idekey=PHPSTORM" >> /etc/php5/conf.d/xdebug.ini && \
     echo "xdebug.remote_log=\"/tmp/xdebug.log\"" >> /etc/php5/conf.d/xdebug.ini
 
 #start apache
